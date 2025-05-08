@@ -2,7 +2,14 @@
 title: "miniproyecto"
 author: "Jenny Carolina Matamoros, Alexandra Estela y Silvia Navarro"
 output: html_document
+
 ---
+```{r}
+#install.packages("rsconnect")
+library(rsconnect)
+
+```
+
 ```{r}
 # datos graficas
 

@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "locale": "es_ES",
+  "platform": "4.3.1",
+  "metadata": {
+    "appmode": "quarto-static",
+    "primary_rmd": "densidadvalencia.qmd",
+    "primary_html": null,
+    "content_category": null,
+    "has_parameters": false
+  },
+  "quarto": {
+    "version": "1.4.553",
+    "engines": ["markdown"]
+  },
+  "packages": null,
+  "files": {
+    "densidadvalencia.cpg": {
+      "checksum": "ae3b3df9970b49b6523e608759bc957d"
+    },
+    "densidadvalencia.dbf": {
+      "checksum": "305e97bfdd73c9ada3fdc381a861ea30"
+    },
+    "densidadvalencia.prj": {
+      "checksum": "0784894c9b39bd085304bfa88a3ea2a6"
+    },
+    "densidadvalencia.qmd": {
+      "checksum": "55a9419462d23b084516c367106e7c77"
+    },
+    "densidadvalencia.shp": {
+      "checksum": "945a6651bfc94362ed0cc080daa721eb"
+    },
+    "densidadvalencia.shx": {
+      "checksum": "b21bd86f9db7cac69091350ba085009a"
+    },
+    "densidadvalencia_4326.dbf": {
+      "checksum": "7a5518950acda51d253afc326a670a55"
+    },
+    "densidadvalencia_4326.prj": {
+      "checksum": "c742bee3d4edfc2948a2ad08de1790a5"
+    },
+    "densidadvalencia_4326.shp": {
+      "checksum": "0d773b1aaa4ce1bb0c06d3916c6bb4f5"
+    },
+    "densidadvalencia_4326.shx": {
+      "checksum": "5346d731bd080a2cb855fce206d63ce4"
+    },
+    "EmbalsesCVBuffer300_4326.dbf": {
+      "checksum": "cce2e285ef4a4e0268ac82c76da784dd"
+    },
+    "EmbalsesCVBuffer300_4326.prj": {
+      "checksum": "c742bee3d4edfc2948a2ad08de1790a5"
+    },
+    "EmbalsesCVBuffer300_4326.shp": {
+      "checksum": "69a8713b2ae7d56968d71eb84ef7b6f4"
+    },
+    "EmbalsesCVBuffer300_4326.shx": {
+      "checksum": "5e04139e872294beaeed2ba2af285387"
+    },
+    "FINAL.Rmd": {
+      "checksum": "dfdb613edf0100e634fcfe402e5f189d"
+    },
+    "MunicipiosCV.cpg": {
+      "checksum": "ae3b3df9970b49b6523e608759bc957d"
+    },
+    "MunicipiosCV.dbf": {
+      "checksum": "5feebede1c49ebb002e52c178ab6ba9c"
+    },
+    "MunicipiosCV.prj": {
+      "checksum": "0784894c9b39bd085304bfa88a3ea2a6"
+    },
+    "MunicipiosCV.qmd": {
+      "checksum": "dc796a7e8f6496892bd62e74e5023d21"
+    },
+    "MunicipiosCV.shp": {
+      "checksum": "3b3df4f5d6c26d9c3b241c209676fb76"
+    },
+    "MunicipiosCV.shx": {
+      "checksum": "37a5965e0b97a5d482ca1cc837d799a4"
+    },
+    "PeligrosidadInundacionCV.cpg": {
+      "checksum": "ae3b3df9970b49b6523e608759bc957d"
+    },
+    "PeligrosidadInundacionCV.dbf": {
+      "checksum": "0390146c32be7fc42b5170d094e462a3"
+    },
+    "PeligrosidadInundacionCV.prj": {
+      "checksum": "0784894c9b39bd085304bfa88a3ea2a6"
+    },
+    "PeligrosidadInundacionCV.qmd": {
+      "checksum": "dee953b24d105160b807ac006aaf698a"
+    },
+    "PeligrosidadInundacionCV.shp": {
+      "checksum": "2a5745400ed1ab2e87225c1332cca9a5"
+    },
+    "PeligrosidadInundacionCV.shx": {
+      "checksum": "66a1d07eeecf2cdb4d86395f52caecbc"
+    },
+    "PeligrosidadInundacionCV_4326.dbf": {
+      "checksum": "80bb93c6a69ac32b9ffd31b4baf464fc"
+    },
+    "PeligrosidadInundacionCV_4326.prj": {
+      "checksum": "c742bee3d4edfc2948a2ad08de1790a5"
+    },
+    "PeligrosidadInundacionCV_4326.shp": {
+      "checksum": "20fcd032bd38e029ed78cc8852937679"
+    },
+    "PeligrosidadInundacionCV_4326.shx": {
+      "checksum": "5e07b2cd0fdd89ba7d916789a541db83"
+    },
+    "PresasCV_4326.dbf": {
+      "checksum": "c96bb8503745ad7553f06bf726079d42"
+    },
+    "PresasCV_4326.prj": {
+      "checksum": "c742bee3d4edfc2948a2ad08de1790a5"
+    },
+    "PresasCV_4326.shp": {
+      "checksum": "e9c03783b6e08958c66623c86f13f804"
+    },
+    "PresasCV_4326.shx": {
+      "checksum": "201cac1d4210f3a6b82081101c74fac6"
+    },
+    "rios_y_barrancos_valenciana_simplificado_4326.dbf": {
+      "checksum": "d2a8fb3ea825ad6fd7cc91007b38cbfd"
+    },
+    "rios_y_barrancos_valenciana_simplificado_4326.prj": {
+      "checksum": "c742bee3d4edfc2948a2ad08de1790a5"
+    },
+    "rios_y_barrancos_valenciana_simplificado_4326.shp": {
+      "checksum": "68f0f476d099cb978c991080817ade23"
+    },
+    "rios_y_barrancos_valenciana_simplificado_4326.shx": {
+      "checksum": "936269c63da5399c8754e31fc0118ad4"
+    },
+    "TramosARPSI_CVBuffer300_4326.dbf": {
+      "checksum": "2d614923725a39d5c9478c5f9fb03462"
+    },
+    "TramosARPSI_CVBuffer300_4326.prj": {
+      "checksum": "c742bee3d4edfc2948a2ad08de1790a5"
+    },
+    "TramosARPSI_CVBuffer300_4326.shp": {
+      "checksum": "1123f2d5809968bed74ecbfe9cc81fca"
+    },
+    "TramosARPSI_CVBuffer300_4326.shx": {
+      "checksum": "a2629517d38a0eed8bfa63106bde7d24"
+    },
+    "zonas_inundables_valenciana_b_Simplificado_4326.dbf": {
+      "checksum": "868a2a0aff01b8d6daddaeb71e4cc1fe"
+    },
+    "zonas_inundables_valenciana_b_Simplificado_4326.prj": {
+      "checksum": "c742bee3d4edfc2948a2ad08de1790a5"
+    },
+    "zonas_inundables_valenciana_b_Simplificado_4326.shp": {
+      "checksum": "976dc9d08196cf125bef03eacebfbd5f"
+    },
+    "zonas_inundables_valenciana_b_Simplificado_4326.shx": {
+      "checksum": "9d46bdbe4d97fbe4a8464f1639a9b74d"
+    }
+  },
+  "users": null
+}
