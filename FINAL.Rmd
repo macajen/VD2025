@@ -1,0 +1,346 @@
+---
+title: "miniproyecto"
+author: "Jenny Carolina Matamoros, Alexandra Estela y Silvia Navarro"
+output: html_document
+---
+```{r}
+# datos graficas
+
+library(sf)
+library(shiny)
+library(leaflet)
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(shinythemes)
+library(RColorBrewer)
+library(shinyjs)
+library(plotly)
+# Cargar los archivos shapefile (.shp) - especifica la ruta donde están todos los archivos
+
+PeligrosidadInundacion <- st_read("PeligrosidadInundacionCV.shp")
+
+densidadvalencia <- st_read("densidadvalencia.shp")
+municipios <- st_read("MunicipiosCV.shp")
+
+
+# datos mapa
+#mapa
+peligrosidad_sf <- st_read("./PeligrosidadInundacionCV_4326.shp", quiet = TRUE)
+
+presas_sf <- st_read("./PresasCV_4326.shp", quiet = TRUE)
+
+densidad_sf <- st_read("./densidadvalencia_4326.shp", quiet = TRUE)
+
+
+embalses_buffer <- st_read("./EmbalsesCVBuffer300_4326.shp", quiet = TRUE)
+
+tramos_arpsi <- st_read("./TramosARPSI_CVBuffer300_4326.shp", quiet = TRUE)
+
+zonas_inundables <- st_read("./zonas_inundables_valenciana_b_Simplificado_4326.shp", quiet = TRUE)
+
+rios_barrancos <- st_read("./rios_y_barrancos_valenciana_simplificado_4326.shp", quiet = TRUE)
+
+
+
+#CODIGO COMPLETO
+
+
+# UI
+ui <- fluidPage(
+  titlePanel("Análisis Hidrográfico e Inundaciones en la Comunidad Valenciana"),
+
+  tabsetPanel(
+    tabPanel("Mapa Interactivo",
+             leafletOutput("mapa", height = "800px")
+    ),
+
+    tabPanel("Densidad promedio por nivel de peligrosidad",
+             plotlyOutput("densidad_peligrosidad")
+    ),
+
+    tabPanel("Top 10 por nivel",
+             sidebarLayout(
+               sidebarPanel(
+                 selectInput("nivel_seleccionado",
+                             "Selecciona el nivel de peligrosidad:",
+                             choices = sort(unique(PeligrosidadInundacion$n_pelig)),
+                             selected = unique(PeligrosidadInundacion$n_pelig)[1])
+               ),
+               mainPanel(
+                 plotlyOutput("top_10_zonas")
+               )
+             )
+    ),
+
+    tabPanel("Hectáreas por nivel de riesgo",
+             plotlyOutput("hectareas_por_nivel")
+    ),
+
+    tabPanel("Densidad media por municipio (Riesgo Alto y Muy Alto)",
+             plotlyOutput("densidad_por_municipio")
+    ),
+    
+    tabPanel("Embalses más afectados",
+             plotOutput("top_embalses_peligrosos")
+    ),
+    
+    tabPanel("Ríos/Barrancos más peligrosos",
+             plotOutput("top_rios_barrancos")
+    )
+  )
+)
+
+# Definir colores_peligrosidad (AÑADIDO)
+colores_peligrosidad <- c(
+  "1" = "#2ecc71",  # verde
+  "2" = "#a2d96e",
+  "3" = "#ffe066",
+  "4" = "#f6b94e",
+  "5" = "#f6a500",  # naranja oscuro para riesgo 5
+  "6" = "#f28e2b",  # naranja claro para riesgo 6
+  "7" = "#d62728"   # rojo para riesgo 7
+)
+
+# Server
+server <- function(input, output, session) {
+
+  output$mapa <- renderLeaflet({
+    pal_pelig <- colorFactor(
+      palette = c("darkgreen", "mediumseagreen", "lightgreen", "yellow", "orange", "red", "darkred"),
+      domain = peligrosidad_sf$n_pelig
+    )
+    pal_densidad <- colorBin(
+      palette = "YlOrRd",
+      domain = densidad_sf$dens_pob,
+      bins = c(0, 200, 400, 800, 1200, 3000, Inf)
+    )
+
+    leaflet() %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      
+      addPolygons(data = densidad_sf,
+            fillColor = ~pal_densidad(dens_pob),
+            color = "black", weight = 0.3,
+            fillOpacity = 0.5,
+            group = "Densidad Población",
+            popup = ~paste("Densidad:", round(dens_pob, 1), "hab/km²")) %>%
+
+      addPolygons(data = peligrosidad_sf,
+                  fillColor = ~pal_pelig(n_pelig),
+                  color = "gray", weight = 0.3,
+                  fillOpacity = 0.5,
+                  group = "Peligrosidad Inundación",
+                  popup = ~paste("Nivel:", n_pelig)) %>%
+
+      addPolygons(data = zonas_inundables,
+                  color = "blue", weight = 0.5,
+                  fillOpacity = 0.3,
+                  group = "Zonas Inundables") %>%
+
+      addPolylines(data = rios_barrancos,
+                   color = "blue", weight = 1,
+                   group = "Ríos y Barrancos") %>%
+
+      addPolygons(data = embalses_buffer,
+                  color = "purple", weight = 1,
+                  fillOpacity = 0.2,
+                  group = "Buffer Embalses") %>%
+
+      addPolygons(data = tramos_arpsi,
+                  color = "darkgreen", weight = 1,
+                  fillOpacity = 0.3,
+                  group = "Tramos ARPSI") %>%
+
+      addCircleMarkers(data = presas_sf,
+                       radius = 4,
+                       fillColor = "red",
+                       fillOpacity = 0.8,
+                       color = "black",
+                       stroke = TRUE,
+                       weight = 1,
+                       popup = ~paste("Presa:", NomPresa),
+                       group = "Presas") %>%
+
+      addLayersControl(
+        overlayGroups = c("Peligrosidad Inundación", "Zonas Inundables", "Ríos y Barrancos", "Buffer Embalses",
+                          "Tramos ARPSI", "Presas", "Densidad Población"),
+        options = layersControlOptions(collapsed = FALSE)
+      )
+  })
+  
+  observe({
+    proxy <- leafletProxy("mapa")
+    
+    # Leyenda de Densidad
+    if ("Densidad Población" %in% input$mapa_groups) {
+      proxy %>%
+        addLegend(
+          pal = colorBin(
+            palette = "YlOrRd",
+            domain = densidad_sf$dens_pob,
+            bins = c(0, 200, 400, 800, 1200, 3000, Inf)
+          ),
+          values = densidad_sf$dens_pob,
+          position = "bottomright",
+          title = "Densidad (hab/km²)",
+          layerId = "leyenda_densidad"
+        )
+    } else {
+      proxy %>% removeControl("leyenda_densidad")
+    }
+    
+    # Leyenda de Peligrosidad con paleta personalizada
+    if ("Peligrosidad Inundación" %in% input$mapa_groups) {
+      proxy %>%
+        addLegend(
+          pal = colorFactor(
+            palette = c("darkgreen", "mediumseagreen", "lightgreen", "yellow", "orange", "red", "darkred"),
+            domain = peligrosidad_sf$n_pelig
+          ),
+          values = peligrosidad_sf$n_pelig,
+          position = "bottomleft",
+          title = "Nivel de Peligrosidad",
+          layerId = "leyenda_peligrosidad"
+        )
+    } else {
+      proxy %>% removeControl("leyenda_peligrosidad")
+    }
+  })
+
+  # GRÁFICOS
+
+  # 1. Densidad promedio por nivel de peligrosidad
+  output$densidad_peligrosidad <- renderPlotly({
+    interseccion <- st_intersection(PeligrosidadInundacion, densidadvalencia)
+
+    resumen <- interseccion %>%
+      st_drop_geometry() %>%
+      group_by(n_pelig) %>%
+      summarise(densidad_promedio = mean(dens_pob, na.rm = TRUE)) %>%
+      mutate(n_pelig = factor(n_pelig, levels = as.character(1:7)))
+
+    p <- ggplot(resumen, aes(x = n_pelig, y = densidad_promedio, fill = n_pelig)) +
+      geom_bar(stat = "identity") +
+      scale_fill_manual(values = colores_peligrosidad) +
+      labs(x = "Nivel de Peligrosidad", y = "Densidad Promedio (hab/km²)",
+           title = "Densidad de población promedio por nivel de peligrosidad") +
+      theme_minimal()
+
+    ggplotly(p)
+  })
+
+  # 2. Top 10 zonas con más hectáreas por nivel
+  output$top_10_zonas <- renderPlotly({
+    filtrado <- PeligrosidadInundacion %>%
+      filter(n_pelig == input$nivel_seleccionado, !is.na(hectares)) %>%
+      arrange(desc(hectares)) %>%
+      slice_head(n = 10)
+
+    p <- ggplot(filtrado, aes(x = reorder(zona, hectares), y = hectares, fill = factor(n_pelig))) +
+      geom_bar(stat = "identity") +
+      coord_flip() +
+      scale_fill_brewer(palette = "Set3") +
+      labs(x = "Zona", y = "Hectáreas",
+           title = paste("Top 10 zonas - Nivel:", input$nivel_seleccionado)) +
+      theme_minimal()
+
+    ggplotly(p)
+  })
+
+  # 3. Hectáreas totales por nivel
+  output$hectareas_por_nivel <- renderPlotly({
+    resumen <- PeligrosidadInundacion %>%
+      st_drop_geometry() %>%
+      group_by(n_pelig) %>%
+      summarise(hectareas_totales = sum(hectares, na.rm = TRUE))
+
+    p <- ggplot(resumen, aes(x = factor(n_pelig), y = hectareas_totales, fill = factor(n_pelig))) +
+      geom_col() +
+      scale_fill_manual(values = colores_peligrosidad) +
+      labs(x = "Nivel de Peligrosidad", y = "Hectáreas Totales",
+           title = "Hectáreas por Nivel de Peligrosidad") +
+      theme_minimal()
+
+    ggplotly(p)
+  })
+
+  # 4. Densidad media por municipio (solo niveles 6 y 7)
+  output$densidad_por_municipio <- renderPlotly({
+    interseccion <- st_intersection(PeligrosidadInundacion, densidadvalencia) %>%
+      filter(n_pelig %in% c(6, 7))
+
+    resumen <- interseccion %>%
+      st_drop_geometry() %>%
+      group_by(nombre, n_pelig) %>%
+      summarise(densidad_media = mean(dens_pob, na.rm = TRUE)) %>%
+      ungroup() %>%
+      arrange(desc(densidad_media)) %>%
+      slice_head(n = 10)
+
+    p <- ggplot(resumen, aes(x = reorder(nombre, densidad_media), y = densidad_media, fill = factor(n_pelig))) +
+      geom_bar(stat = "identity") +
+      scale_fill_manual(
+        values = c("6" = "#f28e2b", "7" = "#d62728"),
+        name = "Nivel de Peligrosidad",
+        labels = c("6" = "Alto", "7" = "Muy Alto")
+      ) +
+      coord_flip() +
+      labs(x = "Municipio", y = "Densidad Media (hab/km²)",
+           title = "Top 10 Municipios con Mayor Densidad (Riesgo 6 y 7)") +
+      theme_minimal()
+
+    ggplotly(p)
+  })
+  
+  # 5. Top 10 embalses más afectados
+  output$top_embalses_peligrosos <- renderPlot({
+    embalses_alin <- st_transform(presas_sf, st_crs(peligrosidad_sf))
+    
+    inter <- st_intersection(embalses_alin, peligrosidad_sf)
+    
+    resumen <- inter %>%
+      st_drop_geometry() %>%
+      group_by(nombre_embalse = NomPresa) %>%
+      summarise(total_hectareas = sum(hectares, na.rm = TRUE)) %>%
+      arrange(desc(total_hectareas)) %>%
+      slice_head(n = 10)
+    
+    ggplot(resumen, aes(x = reorder(nombre_embalse, total_hectareas), y = total_hectareas)) +
+      geom_bar(stat = "identity", fill = "#d62728") +
+      coord_flip() +
+      labs(x = "Embalse", y = "Total de Hectáreas en Zona de Peligrosidad",
+           title = "Top 10 Embalses Más Afectados por Inundaciones") +
+      theme_minimal()
+  })
+  
+  # 6. Top 10 ríos/barrancos más peligrosos
+  output$top_rios_barrancos <- renderPlot({
+    rios_barrancos_alin <- st_transform(rios_barrancos, st_crs(peligrosidad_sf))
+    
+    inter_rb <- st_intersection(peligrosidad_sf, rios_barrancos_alin)
+    
+    resumen_rb <- inter_rb %>%
+      st_drop_geometry() %>%
+      group_by(rio_barranco = geonameTxt) %>%
+      summarise(total_hectareas = sum(hectares, na.rm = TRUE)) %>%
+      arrange(desc(total_hectareas)) %>%
+      slice_head(n = 10)
+    
+    ggplot(resumen_rb, aes(x = reorder(rio_barranco, total_hectareas), y = total_hectareas)) +
+      geom_bar(stat = "identity", fill = "#1f77b4") +
+      coord_flip() +
+      labs(
+        x = "Río o Barranco",
+        y = "Total de Hectáreas Afectadas",
+        title = "Top 10 Ríos/Barrancos que Afectarían Más Hectáreas en Caso de Inundación"
+      ) +
+      theme_minimal()
+  })
+}
+
+# Ejecutar la app
+shinyApp(ui, server)
+
+```
+
